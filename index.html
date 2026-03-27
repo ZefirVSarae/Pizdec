@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ItsADor</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+            user-select: none;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+        }
+        #ui {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        #door-btn {
+            font-size: 120px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            outline: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        <button id="door-btn">🚪</button>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+        const doorBtn = document.getElementById('door-btn');
+
+        let width, height;
+        let particles = null;
+        const MAX_PARTICLES = 777000777000;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        function createParticles() {
+            const posX = new Float32Array(MAX_PARTICLES);
+            const posY = new Float32Array(MAX_PARTICLES);
+            const velX = new Float32Array(MAX_PARTICLES);
+            const velY = new Float32Array(MAX_PARTICLES);
+
+            for (let i = 0; i < MAX_PARTICLES; i++) {
+                posX[i] = width / 2;
+                posY[i] = height / 2;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4 + 0.5;
+                velX[i] = Math.cos(angle) * speed;
+                velY[i] = Math.sin(angle) * speed;
+            }
+
+            return { posX, posY, velX, velY };
+        }
+
+        doorBtn.addEventListener('click', () => {
+            particles = createParticles();
+            doorBtn.style.display = 'none';
+        });
+
+        function update() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, width, height);
+
+            if (particles) {
+                ctx.fillStyle = 'red';
+                const { posX, posY, velX, velY } = particles;
+
+                for (let i = 0; i < MAX_PARTICLES; i++) {
+                    posX[i] += velX[i];
+                    posY[i] += velY[i];
+
+                    if (posX[i] < 0 || posX[i] > width) velX[i] *= -1;
+                    if (posY[i] < 0 || posY[i] > height) velY[i] *= -1;
+
+                    ctx.fillRect(posX[i], posY[i], 1, 1);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+</body>
+</html>
+
+  
